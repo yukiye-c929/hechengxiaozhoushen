@@ -991,6 +991,14 @@ function playThemeClip(id, chance){
   }
 }
 
+// The final 10→11 merge is a milestone: stop any previous clip so its audio
+// is guaranteed to be heard whenever sound is enabled and the audio context
+// is available.
+function playGuaranteedThemeClip(id){
+  stopThemeAudio();
+  return playThemeClip(id, 1);
+}
+
 // Game levels are zero-based; file/config level labels are one-based.
 function playFriendlyDropAudio(level){
   if (!Number.isInteger(level) || level < 0 || level >= DROP_W.length) return false;
@@ -1001,6 +1009,7 @@ function playFriendlyMergeAudio(newLv){
   if (!Number.isInteger(newLv) || newLv < 1 || newLv > MAX_LV) return false;
   const from = String(newLv).padStart(2, "0");
   const to = String(newLv + 1).padStart(2, "0");
+  if (newLv === MAX_LV) return playGuaranteedThemeClip("merge_" + from + "_" + to);
   return playThemeClip("merge_" + from + "_" + to, THEME_AUDIO_SETTINGS.mergeChance);
 }
 
@@ -1718,6 +1727,7 @@ function playMergeAudio(newLv){
   if (!Number.isInteger(newLv) || newLv < 1 || newLv > MAX_LV) return false;
   if (gameMode === "friendly") return playFriendlyMergeAudio(newLv);
   const id = pickExtraPhrase();
+  if (newLv === MAX_LV) return playGuaranteedThemeClip(id);
   return playThemeClip(id, EXTRA_AUDIO_SETTINGS.mergeChance);
 }
 
